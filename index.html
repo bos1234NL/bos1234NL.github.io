@@ -2,81 +2,94 @@
 <html lang="nl">
 <head>
   <meta charset="utf-8">
-  <title>Clash Royale kaarten overzicht</title>
+  <title>Dart Goblin - Clash Royale</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 40px;
       background: #fff;
       color: #000;
+      line-height: 1.6;
     }
     h1 {
       text-align: center;
+      margin-bottom: 10px;
+    }
+    .card {
+      text-align: center;
       margin-bottom: 20px;
     }
-    table {
+    img {
+      width: 150px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .info {
+      margin: 20px auto;
+      max-width: 700px;
+    }
+    .info table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 14px;
+      margin-bottom: 20px;
     }
-    th, td {
+    .info th, .info td {
       border: 1px solid #333;
       padding: 8px 12px;
-      text-align: center;
+      text-align: left;
     }
-    th {
+    .info th {
       background: #f2c94c;
     }
-    img {
-      width: 60px;
-      height: auto;
-      border-radius: 8px;
+    .story {
+      margin-top: 20px;
+      font-size: 15px;
     }
   </style>
 </head>
 <body>
-  <h1>Clash Royale Kaarten</h1>
-  <table>
-    <thead>
+  <h1>Dart Goblin</h1>
+  <div class="card">
+    <img src="https://cdn.royaleapi.com/static/img/cards-150/dart-goblin.png" alt="Dart Goblin">
+  </div>
+
+  <div class="info">
+    <table>
       <tr>
         <th>Kaart</th>
-        <th>Afbeelding</th>
-        <th>Elixir</th>
-        <th>Type</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Knight</td>
-        <td><img src="https://cdn.royaleapi.com/static/img/cards-150/knight.png" alt="Knight"></td>
-        <td>3</td>
-        <td>Troep</td>
-      </tr>
-      <tr>
-        <td>Golden Knight</td>
-        <td><img src="https://cdn.royaleapi.com/static/img/cards-150/golden-knight.png" alt="Golden Knight"></td>
-        <td>4</td>
-        <td>Troep (Champion)</td>
-      </tr>
-      <tr>
-        <td>Berserker</td>
-        <td><img src="https://cdn.royaleapi.com/static/img/cards-150/berserker.png" alt="Berserker"></td>
-        <td>5</td>
-        <td>Troep</td>
-      </tr>
-      <tr>
-        <td>Skeletons</td>
-        <td><img src="https://cdn.royaleapi.com/static/img/cards-150/skeletons.png" alt="Skeletons"></td>
-        <td>1</td>
-        <td>Troep</td>
-      </tr>
-      <tr>
         <td>Dart Goblin</td>
-        <td><img src="https://cdn.royaleapi.com/static/img/cards-150/dart-goblin.png" alt="Dart Goblin"></td>
-        <td>3</td>
-        <td>Troep</td>
       </tr>
-    </tbody>
-  </table>
+      <tr>
+        <th>Elixir</th>
+        <td>3</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Troep (Ranged)</td>
+      </tr>
+      <tr>
+        <th>Zeldzaamheid</th>
+        <td>Rare</td>
+      </tr>
+      <tr>
+        <th>Release</th>
+        <td>2017</td>
+      </tr>
+    </table>
+
+    <div class="story">
+      <h2>Achtergrondverhaal</h2>
+      <p>
+        De Dart Goblin is een snelle en pittige kaart uit Clash Royale. Met zijn mini-blowgun kan hij pijltjes met hoge snelheid afvuren, waardoor hij op afstand veel schade kan aanrichten. 
+      </p>
+      <p>
+        Hoewel hij erg kwetsbaar is door zijn lage levenspunten, kan hij met de juiste bescherming een enorm verschil maken in een gevecht. 
+        Zijn achtergrond sluit aan bij de ondeugende en slimme aard van de goblins: klein, snel, en altijd gewapend met een list.
+      </p>
+      <p>
+        Spelers gebruiken hem vaak achter een tank, of als goedkope counter tegen lucht- en grondeenheden. Zijn spotgoedkope elixir-kost maakt hem veelzijdig en geschikt in veel soorten decks.
+      </p>
+    </div>
+  </div>
 </body>
 </html>
