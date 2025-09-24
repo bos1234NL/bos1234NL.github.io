@@ -1,13 +1,13 @@
 /* Achtergrond en algemene instellingen */
 body {
-  background-color: lightgray; /* makkelijk leesbare achtergrond */
+  background-color: burlywood; /* makkelijk leesbare achtergrond */
   font-family: Arial, sans-serif;
   margin: 20px;
 }
 
 /* Hoofd titel */
 h1 {
-  color: darkblue;
+  color: navy;
   text-align: center;
 }
 
