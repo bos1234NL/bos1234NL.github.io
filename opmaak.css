@@ -1,13 +1,22 @@
+/* Achtergrond en algemene instellingen */
 body {
-  background-color: navy;
+  background-color: lightgray; /* makkelijk leesbare achtergrond */
+  font-family: Arial, sans-serif;
+  margin: 20px;
 }
 
+/* Hoofd titel */
 h1 {
-  color: white;
+  color: darkblue;
   text-align: center;
 }
 
+/* Subtitels */
+h2 {
+  color: navy;
+}
+
+/* Tekst */
 p {
-  font-family: verdana;
-  font-size: 20px;
+  font-size: 16px;
 }
