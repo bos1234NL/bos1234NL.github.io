@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Arena Royale — Card Tower Duel (inspiratie)</title>
+  <style>
+    :root{--bg:#0b1220;--panel:#0f1724;--accent:#e6b800;--hp:#e74c3c;--ally:#3bd2a4;--enemy:#ff7a7a}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,#071226 0%, #081827 60%);color:#e6eef8}
+    .container{max-width:1100px;margin:24px auto;padding:16px}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    h1{font-size:20px;margin:0}
+    .board{background:linear-gradient(180deg,#0e1b2a,#0b1320);border-radius:12px;padding:12px;display:grid;grid-template-columns:1fr 260px;gap:12px}
+    .arena{position:relative;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,#0f3a2f 0%, #0b2b1f 100%);height:560px;padding:12px}
+    .lane{position:absolute;left:12px;right:12px;top:60px;height:440px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);box-shadow:inset 0 0 30px rgba(0,0,0,0.5)}
+    .river{position:absolute;left:12px;right:12px;top:260px;height:40px;background:rgba(255,255,255,0.03);backdrop-filter:blur(2px)}
+    .tower{position:absolute;width:120px;height:120px;border-radius:10px;background:#2b3a4a;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(0,0,0,0.6)}
+    .tower .label{font-size:12px;opacity:0.9}
+    .tower .hp{position:absolute;left:8px;top:8px;background:rgba(0,0,0,0.4);padding:4px 8px;border-radius:6px;font-size:12px}
+    .tower.left{left:18px;top:110px}
+    .tower.right{right:18px;top:110px}
+    .tower.enemy{transform:scale(1);}
+    .ui{display:flex;flex-direction:column;gap:8px}
+    .panel{background:var(--panel);padding:12px;border-radius:10px;box-shadow:0 6px 24px rgba(2,6,23,0.6)}
+    .cards{display:flex;gap:8px;justify-content:center}
+    .card{width:72px;height:100px;border-radius:8px;background:linear-gradient(180deg,#13202a,#0b1a20);display:flex;flex-direction:column;align-items:center;padding:8px;cursor:pointer;border:2px solid rgba(255,255,255,0.03)}
+    .card.locked{opacity:0.45;filter:grayscale(0.2);cursor:not-allowed}
+    .card .name{font-size:12px;margin-top:6px}
+    .card .cost{position:absolute;margin-top:72px;background:#081827;padding:4px 6px;border-radius:6px;font-weight:700}
+    .resources{display:flex;align-items:center;gap:8px}
+    .elixir{background:linear-gradient(180deg,#0e7db0,#0b5f89);padding:8px 12px;border-radius:999px;font-weight:700}
+    /* entities */
+    .entity{position:absolute;width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#081827;font-weight:700}
+    .entity.ally{background:var(--ally);box-shadow:0 4px 8px rgba(59,210,164,0.18)}
+    .entity.enemy{background:var(--enemy);box-shadow:0 4px 8px rgba(255,122,122,0.18)}
+    .hpbar{position:absolute;height:6px;border-radius:4px;bottom:-8px;left:0;right:0;margin:auto;width:80%;background:rgba(0,0,0,0.3)}
+    .hpbar > i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#4cd964,#1fbf4b);width:100%}
+    .log{height:120px;overflow:auto;font-size:13px}
+    .small{font-size:13px;opacity:0.9}
+    footer{margin-top:12px;text-align:center;opacity:0.9}
+    /* responsive */
+    @media (max-width:900px){.board{grid-template-columns:1fr}.arena{height:500px}.panel{order:2}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Arena Royale — Card Tower Duel (originele assets: placeholders)</h1>
+      <div class="small">Realistische gameplay mechanics: elixir, kaarten, AI tegenstander</div>
+    </header>
+
+    <div class="board">
+      <div class="arena panel" id="arena">
+        <div class="lane" id="lane"></div>
+        <div class="river"></div>
+
+        <div class="tower left" id="tower-left">
+          <div class="hp" id="tower-left-hp">HP: 1000</div>
+          <div class="label">Jouw Toren</div>
+        </div>
+
+        <div class="tower right enemy" id="tower-right">
+          <div class="hp" id="tower-right-hp">HP: 1000</div>
+          <div class="label">Vijandelijke Toren</div>
+        </div>
+
+        <!-- entities will be rendered here -->
+      </div>
+
+      <div class="ui">
+        <div class="panel">
+          <div class="resources" style="justify-content:space-between;margin-bottom:8px">
+            <div class="elixir" id="elixir">Elixir: 4 / 10</div>
+            <div class="small">Ronde: <span id="time">00:00</span></div>
+          </div>
+
+          <div class="cards" id="cards">
+            <!-- cards injected -->
+          </div>
+
+          <div style="margin-top:8px;text-align:center;font-size:13px">Klik een kaart om hem in jouw helft te plaatsen. Vijand speelt automatisch.</div>
+        </div>
+
+        <div class="panel">
+          <div class="small"><strong>Log</strong></div>
+          <div class="log" id="log"></div>
+        </div>
+
+        <div class="panel small">
+          <strong>Tips</strong>
+          <ul>
+            <li>Gebruik goedkope kaarten om elixir te sparen.</li>
+            <li>Grote troepen trekken schade en vertragen vijanden.</li>
+            <li>Deze versie gebruikt originele, niet-geassocieerde sprites/kleuren.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <footer>Opslaan als <code>arena-royale.html</code> en openen in een moderne browser.</footer>
+  </div>
+
+  <script>
+    // --- Game constants & state ---
+    const arena = document.getElementById('arena');
+    const cardsDiv = document.getElementById('cards');
+    const logDiv = document.getElementById('log');
+    const elixirDiv = document.getElementById('elixir');
+    const towerLeftHPDiv = document.getElementById('tower-left-hp');
+    const towerRightHPDiv = document.getElementById('tower-right-hp');
+
+    const arenaRect = {left: 12, right: 12, top: 60, height: 440};
+
+    const GAME = {
+      elixir: 4,
+      maxElixir: 10,
+      elixirRegen: 1, // per second
+      entities: [],
+      nextId: 1,
+      lastTime: null,
+      elapsed: 0,
+      towerLeft: {hp:1000,x:60,y:150},
+      towerRight: {hp:1000,x:880,y:150},
+      spawnY: 260,
+      running:true
+    };
+
+    // --- Card definitions (inspiratie-varianten) ---
+    const CARD_POOL = [
+      {id:'swordsman',name:'Zwaardvechter',cost:3,hp:120,dmg:30,speed:60,range:20,size:36,target:'enemy'},
+      {id:'archer',name:'Boogschutter',cost:2,hp:80,dmg:18,speed:80,range:120,size:28,target:'enemy'},
+      {id:'giant',name:'Groot',cost:6,hp:600,dmg:55,speed:30,range:20,size:48,target:'tower'},
+      {id:'speargo',name:'Speren',cost:1,hp:60,dmg:12,speed:90,range:18,size:28,target:'enemy'}
+    ];
+
+    // create player's deck (4 cards)
+    const playerDeck = [CARD_POOL[0],CARD_POOL[1],CARD_POOL[2],CARD_POOL[3]];
+
+    // --- Utilities ---
+    function log(txt){
+      const p = document.createElement('div');p.textContent = `[${formatTime(GAME.elapsed)}] ${txt}`;logDiv.prepend(p);
+      if(logDiv.children.length>200) logDiv.removeChild(logDiv.lastChild);
+    }
+    function formatTime(s){const ms = Math.floor(s%60).toString().padStart(2,'0'); const m = Math.floor(s/60).toString().padStart(2,'0'); return `${m}:${ms}` }
+
+    // --- Render cards UI ---
+    function renderCards(){
+      cardsDiv.innerHTML='';
+      playerDeck.forEach(card=>{
+        const c = document.createElement('div');c.className='card';c.dataset.id=card.id;
+        if(GAME.elixir < card.cost) c.classList.add('locked');
+        c.innerHTML = `<div style="position:relative;width:100%;height:44px;display:flex;align-items:center;justify-content:center"><div style="font-size:20px">${card.name[0]}</div></div><div class='name'>${card.name}</div><div class='cost'>${card.cost}</div>`;
+        c.onclick = ()=>{ if(GAME.elixir >= card.cost) preparePlaceCard(card) };
+        cardsDiv.appendChild(c);
+      })
+    }
+
+    // --- Prepare placement ---
+    function preparePlaceCard(card){
+      log(`Gekozen kaart: ${card.name} (kosten ${card.cost})`);
+      // show a ghost on player's half and listen for click
+      const ghost = document.createElement('div');ghost.className='entity ally';ghost.style.opacity=0.5;ghost.style.pointerEvents='none';ghost.textContent=card.name[0];ghost.style.width=card.size+'px';ghost.style.height=card.size+'px';
+      arena.appendChild(ghost);
+
+      function moveGhost(e){
+        const rect = arena.getBoundingClientRect();
+        let x = e.clientX - rect.left; let y = e.clientY - rect.top;
+        if(y > rect.height/2) y = rect.height/2 - 10; // restrict to player's half
+        ghost.style.left = (x - card.size/2) + 'px'; ghost.style.top = (y - card.size/2) + 'px';
+      }
+      function place(e){
+        const rect = arena.getBoundingClientRect();
+        let x = e.clientX - rect.left; let y = e.clientY - rect.top;
+        if(y > rect.height/2){ log('Plaatsen mislukt: buiten jouw helft.'); cleanup(); return; }
+        // spend elixir and spawn
+        GAME.elixir -= card.cost; updateElixirUI();
+        spawnEntity(card,'ally',x,y);
+        log(`Gezette ${card.name} op x=${Math.round(x)}`);
+        cleanup();
+      }
+      function cleanup(){
+        arena.removeChild(ghost);
+        window.removeEventListener('mousemove',moveGhost);
+        window.removeEventListener('click',place);
+        renderCards();
+      }
+
+      window.addEventListener('mousemove',moveGhost);
+      window.addEventListener('click',place);
+    }
+
+    // --- Entities management ---
+    function spawnEntity(template,side,x,y){
+      const id = GAME.nextId++;
+      const ent = {
+        id,template,side,x,y,hp:template.hp,dmg:template.dmg,speed:template.speed,range:template.range,size:template.size,target:template.target,dom:null
+      };
+      const d = document.createElement('div');d.className='entity '+(side==='ally'?'ally':'enemy');d.style.left=(x - template.size/2)+'px';d.style.top=(y - template.size/2)+'px';d.style.width=template.size+'px';d.style.height=template.size+'px';d.textContent=template.name[0];
+      const hpwrap = document.createElement('div');hpwrap.className='hpbar';hpwrap.innerHTML='<i></i>';
+      d.appendChild(hpwrap);
+      ent.dom = d;
+      arena.appendChild(d);
+      GAME.entities.push(ent);
+      return ent;
+    }
+
+    function updateEntities(dt){
+      // simple AI: enemies move left, allies move right
+      const toRemove = [];
+      for(const e of GAME.entities){
+        const dir = e.side==='ally'?1:-1;
+        // movement
+        e.x += dir * e.speed * (dt/1000);
+        // bounds
+        if(e.side==='ally' && e.x > GAME.towerRight.x - 40) e.x = GAME.towerRight.x - 40;
+        if(e.side==='enemy' && e.x < GAME.towerLeft.x + 40) e.x = GAME.towerLeft.x + 40;
+
+        // collision check: with opposite side entities
+        let engaged = false;
+        for(const o of GAME.entities){
+          if(o.side === e.side) continue;
+          const dist = Math.hypot((o.x - e.x),(o.y - e.y));
+          if(dist < (e.size+o.size)/2 + 4){
+            // attack each other
+            engaged = true;
+            // both deal damage per second scaled
+            const dps = e.dmg; const odps = o.dmg;
+            e.hp -= odps * (dt/1000);
+            o.hp -= dps * (dt/1000);
+          }
+        }
+
+        // attack tower if target is tower and close
+        if(e.target === 'tower'){
+          const targetTower = e.side==='ally'?GAME.towerRight:GAME.towerLeft;
+          const distToTower = Math.abs(e.x - targetTower.x);
+          if(distToTower < 40){ // in range
+            const dmg = e.dmg * (dt/1000);
+            targetTower.hp -= dmg;
+            if(e.side==='ally') document.getElementById('tower-right-hp').textContent = `HP: ${Math.max(0,Math.round(GAME.towerRight.hp))}`;
+            else document.getElementById('tower-left-hp').textContent = `HP: ${Math.max(0,Math.round(GAME.towerLeft.hp))}`;
+            engaged = true;
+          }
+        }
+
+        // if not engaged, continue moving; if engaged, slow down
+        if(engaged) e.x -= dir * (e.speed * 0.4) * (dt/1000);
+
+        // removal by hp
+        if(e.hp <= 0){ toRemove.push(e.id); }
+      }
+
+      // remove dead
+      for(const id of toRemove){
+        const i = GAME.entities.findIndex(x=>x.id===id);
+        if(i>=0){ const e = GAME.entities[i]; if(e.dom && e.dom.parentNode) e.dom.parentNode.removeChild(e.dom); GAME.entities.splice(i,1); }
+      }
+
+      // check towers destroyed
+      if(GAME.towerLeft.hp <= 0 || GAME.towerRight.hp <= 0){ GAME.running=false; const winner = GAME.towerLeft.hp<=0? 'Vijand' : 'Speler'; log(`${winner} wint!`); }
+    }
+
+    function renderEntities(){
+      for(const e of GAME.entities){
+        if(!e.dom) continue;
+        e.dom.style.left = (e.x - e.size/2) + 'px';
+        e.dom.style.top = (e.y - e.size/2) + 'px';
+        const pct = Math.max(0, e.hp / e.template.hp) * 100;
+        const bar = e.dom.querySelector('.hpbar > i'); if(bar) bar.style.width = pct + '%';
+      }
+    }
+
+    // --- Elixir regeneration & enemy AI ---
+    function updateElixirUI(){ elixirDiv.textContent = `Elixir: ${Math.floor(GAME.elixir)} / ${GAME.maxElixir}`; renderCards(); }
+
+    setInterval(()=>{
+      if(!GAME.running) return;
+      GAME.elixir = Math.min(GAME.maxElixir, GAME.elixir + GAME.elixirRegen);
+      updateElixirUI();
+    },1000);
+
+    // enemy plays cards randomly
+    function enemyAI(){
+      if(!GAME.running) return;
+      const choice = CARD_POOL[Math.floor(Math.random()*CARD_POOL.length)];
+      if(GAME.elixir >= choice.cost + 2) { // give AI somewhat more conservative cost
+        // spawn on enemy half (right side)
+        const x = GAME.towerRight.x - 120 - Math.random()*100;
+        const y = GAME.spawnY + (Math.random()-0.5)*90;
+        GAME.elixir -= choice.cost;
+        spawnEntity(choice,'enemy',x,y);
+        log(`Vijand speelt ${choice.name}`);
+        updateElixirUI();
+      }
+    }
+    setInterval(enemyAI,2500 + Math.random()*2000);
+
+    // --- Game loop ---
+    function gameLoop(ts){
+      if(!GAME.lastTime) GAME.lastTime = ts;
+      const dt = ts - GAME.lastTime; GAME.lastTime = ts; GAME.elapsed += dt/1000;
+      document.getElementById('time').textContent = formatTime(GAME.elapsed);
+
+      updateEntities(dt);
+      renderEntities();
+      // update tower HP display
+      towerLeftHPDiv.textContent = `HP: ${Math.max(0,Math.round(GAME.towerLeft.hp))}`;
+      towerRightHPDiv.textContent = `HP: ${Math.max(0,Math.round(GAME.towerRight.hp))}`;
+
+      if(GAME.running) requestAnimationFrame(gameLoop);
+    }
+
+    // --- initialize positions & UI ---
+    function init(){
+      // calculate tower coordinates relative to arena
+      const rect = arena.getBoundingClientRect();
+      GAME.towerLeft.x = 60; GAME.towerLeft.y = 150;
+      GAME.towerRight.x = rect.width - 60; GAME.towerRight.y = 150;
+
+      // place towers visually
+      const tl = document.getElementById('tower-left'); tl.style.left = (GAME.towerLeft.x - 60) + 'px'; tl.style.top = (GAME.towerLeft.y - 40) + 'px';
+      const tr = document.getElementById('tower-right'); tr.style.left = (GAME.towerRight.x - 60) + 'px'; tr.style.top = (GAME.towerRight.y - 40) + 'px';
+
+      renderCards(); updateElixirUI();
+      requestAnimationFrame(gameLoop);
+      log('Spel gestart — veel succes!');
+    }
+
+    // start after DOM ready
+    window.addEventListener('load',()=>{
+      init();
+    });
+
+    // small safeguard: allow restart by pressing R
+    window.addEventListener('keydown',e=>{
+      if(e.key.toLowerCase()==='r') location.reload();
+    });
+  </script>
+</body>
+</html>
