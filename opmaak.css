@@ -1,22 +1,22 @@
 /* Achtergrond en algemene instellingen */
 body {
-  background-color: burlywood; /* makkelijk leesbare achtergrond */
+  background-color: burlywood; 
   font-family: Arial, sans-serif;
   margin: 20px;
 }
 
-/* Hoofd titel */
+
 h1 {
   color: navy;
   text-align: center;
 }
 
-/* Subtitels */
+
 h2 {
   color: navy;
 }
 
-/* Tekst */
+
 p {
   font-size: 16px;
 }
